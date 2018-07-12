@@ -49,7 +49,7 @@ let fileData = '';
 
     // 欲しいデータの初期化
     var dataList = [];
-    for(var i = 0; i < item.length; ++i){
+    for (var i = 0; i < item.length; ++i){
       // 院名
       var nameBox = item[i].getElementsByClassName("name_box");
       if (nameBox[0] !== undefined) {
@@ -99,7 +99,7 @@ let fileData = '';
   await browser.close();
 
   // ファイルへの書き込み
-  for(let value of data) {
+  for (let value of data) {
     fileData += `${value}\n`;
   }
 

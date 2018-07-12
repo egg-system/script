@@ -23,7 +23,7 @@ if (pageNumber === 1) {
   // ファイルのヘッダー
   let header = '院名\t住所\t最寄り駅\t診療時間\n';
   // tsvに書き込み
-  fs.appendFile(tsvFile, header, function(err) {
+  fs.appendFile(tsvFile, header, (err) => {
     if (err) {
       console.log(err);
     } else {
@@ -104,7 +104,7 @@ let fileData = '';
   }
 
   // tsvに書き込み
-  fs.appendFile(tsvFile, fileData, function(err) {
+  fs.appendFile(tsvFile, fileData, (err) => {
     if (err) {
       console.log(err);
     } else {

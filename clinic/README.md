@@ -1,4 +1,6 @@
 ### usage
 ```
-./roop.sh
+$ npm install
+
+$ ./roop.sh
 ```

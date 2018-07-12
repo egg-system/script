@@ -3,7 +3,6 @@ const fs = require('fs');
 
 const clinicPage = 'https://clinic.jiko24.jp/surgery-detail/';
 const tsvFile = 'output.tsv';
-const lastPage = 3;
 
 // コマンドライン引数の取得
 let pageNumber = 1;

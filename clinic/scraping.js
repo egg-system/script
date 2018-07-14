@@ -21,7 +21,8 @@ console.log(clinicPageUrl);
 
 if (pageNumber === 1) {
   // ファイルのヘッダー
-  let header = '院名\t住所\t最寄り駅\t診療時間\n';
+  // let header = '院名\t住所\t最寄り駅\t診療時間\n';
+  let header = '院名\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
   // tsvに書き込み
   fs.appendFile(tsvFile, header, (err) => {
     if (err) {
@@ -69,6 +70,9 @@ let fileData = '';
       }
 
       // 最寄駅
+      var typeTrain1 = '';
+      var typeTrain2 = '';
+      var typeTrain3 = '';
       var typeTrain = item[i].getElementsByClassName("type_train");
       if (typeTrain[0] !== undefined) {
         // 末尾の改行を削除
@@ -76,9 +80,22 @@ let fileData = '';
         // 不要な文字列は削除
         typeTrain = typeTrain.replace(/最寄り駅： /g,'');
         typeTrain = typeTrain.replace(/ $/g,'');
-        typeTrain = typeTrain.replace(/ /g,',');
-      } else {
-        typeTrain = '';
+        // 駅がスペース区切られているので分割する
+        var typeTrainArray = typeTrain.split(' ');
+        typeTrain1 = (typeTrainArray[0] !== undefined) ? typeTrainArray[0] : '';
+        typeTrain2 = (typeTrainArray[1] !== undefined) ? typeTrainArray[1] : '';
+        typeTrain3 = (typeTrainArray[2] !== undefined) ? typeTrainArray[2] : '';
+
+        // 3つ以上ある場合の処理
+        /*
+        if (typeTrainArray[2] !== undefined) {
+          for (var num = 2; num < typeTrainArray.length; ++num) {
+            typeTrain3 += `${typeTrainArray[num]},`;
+          }
+          // 末尾のカンマを削除
+          typeTrain3 = typeTrain3.replace(/,+$/g,'');
+        }
+        */
       }
 
       // 診療時間
@@ -90,7 +107,7 @@ let fileData = '';
         time = '';
       }
 
-      var output = `${nameBox}\t${access}\t${typeTrain}\t${time}`
+      var output = `${nameBox}\t${access}\t${typeTrain1}\t${typeTrain2}\t${typeTrain3}\t${time}`
       dataList.push(output);
     }
     return dataList;

@@ -4,6 +4,9 @@ const fs = require('fs');
 const clinicPage = 'https://clinic.jiko24.jp/surgery-detail/';
 const tsvFile = 'output.tsv';
 
+// const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU_test.CSV';
+const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU.CSV';
+
 // コマンドライン引数の取得
 let pageNumber = 1;
 if (process.argv[2] !== undefined) {
@@ -22,7 +25,8 @@ console.log(clinicPageUrl);
 if (pageNumber === 1) {
   // ファイルのヘッダー
   // let header = '院名\t住所\t最寄り駅\t診療時間\n';
-  let header = '院名\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
+  // let header = '院名\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
+  let header = '院名\t郵便番号\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
   // tsvに書き込み
   fs.appendFile(tsvFile, header, (err) => {
     if (err) {
@@ -115,9 +119,29 @@ let fileData = '';
 
   await browser.close();
 
-  // ファイルへの書き込み
+  // 郵便番号のデータを取得
+  const postalCodeData = await readPostalCodeFile();
+
+  // ファイルへの書き込みするデータの処理
   for (let value of data) {
-    fileData += `${value}\n`;
+    // 全郵便番号と総当たりで検索する
+    let postalCode = '';
+    for (let postal of postalCodeData) {
+      if (value.indexOf(postal['address']) !== -1) {
+        postalCode = postal['number'];
+        break;
+      }
+    }
+
+    // fileData += `${value}\n`;
+
+    // 郵便番号を追加する
+    // fileData += `${postalCode}\t${value}\n`;
+    // 一旦配列に分割する
+    const valueArray = value.split('\t');
+    // 順番を変えて文字列にする
+    const lineData = `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${valueArray[5]}`;
+    fileData += `${lineData}\n`;
   }
 
   // tsvに書き込み
@@ -129,3 +153,36 @@ let fileData = '';
     }
   });
 })()
+
+// 非同期でファイルを読み込みPromiseを返す関数を定義
+const readPostalCodeFile = () => {
+  return new Promise((resolve, reject) => {
+    // 最終的に返す郵便番号のデータ
+    let postalCodeData = [];
+    fs.readFile(postalCodeFile, (err, text) => {
+      const line = String(text);
+      const lineArray = line.split('\n');
+
+      // ファイルのデータを1行ずつ処理
+      for (let lineData of lineArray) {
+        // スペース区切りでデータを取得
+        const lineDataArray = lineData.split(' ');
+        let tmp = {};
+        if (lineDataArray[0] !== '') {
+          // 郵便番号
+          tmp.number = lineDataArray[0];
+          // 残りが住所データ
+          tmp.address = `${lineDataArray[1]}${lineDataArray[2]}${lineDataArray[3]}`;
+          // まとめて配列に追加
+          postalCodeData.push(tmp);
+        }
+      }
+      resolve(postalCodeData)
+
+      if (err) {
+        console.log(err);
+        resolve(error)
+      }
+    });
+  });
+}

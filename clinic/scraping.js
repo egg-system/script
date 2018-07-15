@@ -4,6 +4,7 @@ const fs = require('fs');
 const clinicPage = 'https://clinic.jiko24.jp/surgery-detail/';
 const tsvFile = 'output.tsv';
 
+// 郵便番号データをローカルに置いておく
 // const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU_test.CSV';
 const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU.CSV';
 

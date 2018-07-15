@@ -182,7 +182,7 @@ const readPostalCodeFile = () => {
 
       if (err) {
         console.log(err);
-        resolve(error)
+        resolve(err)
       }
     });
   });

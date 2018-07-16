@@ -59,8 +59,8 @@ let fileData = '';
       // 院名
       var nameBox = item[i].getElementsByClassName("name_box");
       if (nameBox[0] !== undefined) {
-        // 末尾の改行を削除
-        nameBox = nameBox[0].innerText.replace(/\n+$/g,'');
+        // 改行を全て削除
+        nameBox = nameBox[0].innerText.replace(/\r?\n/g,'');
       } else {
         nameBox = '';
       }
@@ -68,8 +68,8 @@ let fileData = '';
       // 住所
       var access = item[i].getElementsByClassName("access");
       if (access[0] !== undefined) {
-        // 末尾の改行を削除
-        access = access[0].innerText.replace(/\n+$/g,'');
+        // 改行を全て削除
+        access = access[0].innerText.replace(/\r?\n/g,'');
       } else {
         access = '';
       }
@@ -80,8 +80,8 @@ let fileData = '';
       var typeTrain3 = '';
       var typeTrain = item[i].getElementsByClassName("type_train");
       if (typeTrain[0] !== undefined) {
-        // 末尾の改行を削除
-        typeTrain = typeTrain[0].innerText.replace(/\n+$/g,'');
+        // 改行を全て削除
+        typeTrain = typeTrain[0].innerText.replace(/\r?\n/g,'');
         // 不要な文字列は削除
         typeTrain = typeTrain.replace(/最寄り駅： /g,'');
         typeTrain = typeTrain.replace(/ $/g,'');
@@ -106,8 +106,8 @@ let fileData = '';
       // 診療時間
       var time = item[i].getElementsByClassName("s_time");
       if (time[0] !== undefined) {
-        // 末尾の改行を削除
-        time = time[0].innerText.replace(/\n+$/g,'');
+        // 改行を全て削除
+        time = time[0].innerText.replace(/\r?\n/g,'');
       } else {
         time = '';
       }
@@ -128,6 +128,7 @@ let fileData = '';
     // 全郵便番号と総当たりで検索する
     let postalCode = '';
     for (let postal of postalCodeData) {
+      // 病院の住所の中に郵便番号の住所が含まれて入れば郵便番号を使う
       if (value.indexOf(postal['address']) !== -1) {
         postalCode = postal['number'];
         break;
@@ -136,13 +137,11 @@ let fileData = '';
 
     // fileData += `${value}\n`;
 
-    // 郵便番号を追加する
-    // fileData += `${postalCode}\t${value}\n`;
     // 一旦配列に分割する
     const valueArray = value.split('\t');
-    // 順番を変えて文字列にする
-    const lineData = `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${valueArray[5]}`;
-    fileData += `${lineData}\n`;
+    // 順番を変えて郵便番号を追加する
+    fileData += `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${valueArray[5]}\n`;
+    // fileData += `${lineData}\n`;
   }
 
   // tsvに書き込み

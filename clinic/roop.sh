@@ -4,6 +4,7 @@ SECONDS=0
 
 for number in `seq 860`
 do
+  echo "-------"
   node scraping.js $number
 done
 

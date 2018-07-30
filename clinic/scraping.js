@@ -6,7 +6,9 @@ const tsvFile = 'output.tsv';
 
 // 郵便番号データをローカルに置いておく
 // const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU_test.CSV';
-const postalCodeFile = '/Users/hikaru/Downloads/KEN_ICHIBU.CSV';
+const postalCodeFile = './data/KEN_ICHIBU.CSV';
+const prefecturesFile = './data/TODOHUKEN.CSV';
+const cityFile = './data/SHIKUCHOSON.CSV';
 
 // コマンドライン引数の取得
 let pageNumber = 1;
@@ -25,7 +27,8 @@ console.log(clinicPageUrl);
 
 if (pageNumber === 1) {
   // ファイルのヘッダー
-  let header = '院名\t郵便番号\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
+  // let header = '院名\t郵便番号\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
+  let header = '院名\t郵便番号\t都道府県\t市区町村\tその他住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\n';
   // let header = '院名\t郵便番号\t住所\t最寄り駅1\t最寄り駅2\t最寄り駅3\t診療時間\t診療時間html\n';
   // tsvに書き込み
   fs.appendFile(tsvFile, header, (err) => {
@@ -142,20 +145,48 @@ let fileData = '';
 
   // 郵便番号のデータを取得
   const postalCodeData = await readPostalCodeFile();
+  // 都道府県のデータを取得
+  const prefecturesData = await readFile(prefecturesFile);
+  // 市区町村のデータを取得
+  const cityData = await readFile(cityFile);
+
   // ファイルへの書き込みするデータの処理
   for (let value of data.text) {
+    // 一旦配列に分割する
+    const valueArray = value.split('\t');
+    let address = valueArray[1];
+
     // 全郵便番号と総当たりで検索する
     let postalCode = '';
     for (let postal of postalCodeData) {
       // 病院の住所の中に郵便番号の住所が含まれて入れば郵便番号を使う
-      if (value.indexOf(postal['address']) !== -1) {
+      if (address.indexOf(postal['address']) !== -1) {
         postalCode = postal['number'];
         break;
       }
     }
 
-    // 一旦配列に分割する
-    const valueArray = value.split('\t');
+    // 都道府県と総当たりで検索する
+    let prefecture = '';
+    for (let pre of prefecturesData) {
+      if (address.indexOf(pre) !== -1) {
+        var reg = new RegExp(pre);
+        address = address.replace(reg, '');
+        prefecture = pre;
+        break;
+      }
+    }
+
+    // 市区町村と総当たりで検索する
+    let city = '';
+    for (let ci of cityData) {
+      if (address.indexOf(ci) !== -1) {
+        var reg = new RegExp(ci);
+        address = address.replace(reg, '');
+        city = ci;
+        break;
+      }
+    }
 
     console.log('詳細ページに遷移');
     const url = valueArray[6];
@@ -175,8 +206,17 @@ let fileData = '';
     });
 
     // 順番を変えて郵便番号を追加する
-    fileData += `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${htmlData}\n`;
-    // fileData += `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${valueArray[5]}\t${url}\n`;
+    // fileData += `${valueArray[0]}\t${postalCode}\t${valueArray[1]}\t${valueArray[2]}\t${valueArray[3]}\t${valueArray[4]}\t${htmlData}\n`;
+    const line = `${valueArray[0]}\t`
+               + `${postalCode}\t`
+               + `${prefecture}\t`
+               + `${city}\t`
+               + `${address}\t`
+               + `${valueArray[2]}\t`
+               + `${valueArray[3]}\t`
+               + `${valueArray[4]}\t`
+               + `${htmlData}\n`;
+    fileData += line;
   }
 
   await browser.close();
@@ -216,6 +256,31 @@ const readPostalCodeFile = () => {
         }
       }
       resolve(postalCodeData)
+
+      if (err) {
+        console.log(err);
+        resolve(err)
+      }
+    });
+  });
+}
+
+// 非同期で指定したファイルを読み込む
+const readFile = (file) => {
+  return new Promise((resolve, reject) => {
+    // 最終的に返す郵便番号のデータ
+    let fileData = [];
+    fs.readFile(file, (err, text) => {
+      const line = String(text);
+      const lineArray = line.split('\n');
+
+      // ファイルのデータを1行ずつ処理
+      for (let lineData of lineArray) {
+        if (lineData !== '') {
+          fileData.push(lineData);
+        }
+      }
+      resolve(fileData)
 
       if (err) {
         console.log(err);

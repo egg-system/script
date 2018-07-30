@@ -48,6 +48,16 @@ let fileData = '';
   const data = await page.evaluate(() => {
     // 以下ブラウザで動くコードを書く
 
+    // 文字列の共通処理
+    function replaceString(str) {
+      // 改行を全て削除
+      return str.replace(/\r?\n/g,'')
+      // タブを全てスペースに置換
+                .replace(/\t/g,' ');
+
+      return str;
+    }
+
     // 欲しいデータの初期化
     // var dataList = [];
     var dataList = {};
@@ -62,8 +72,8 @@ let fileData = '';
       // 院名
       var nameBox = item[i].getElementsByClassName("name_box");
       if (nameBox[0] !== undefined) {
-        // 改行を全て削除
-        nameBox = nameBox[0].innerText.replace(/\r?\n/g,'');
+        // 文字列を整形
+        nameBox = replaceString(nameBox[0].innerText);
       } else {
         nameBox = '';
       }
@@ -80,8 +90,8 @@ let fileData = '';
       // 住所
       var access = item[i].getElementsByClassName("access");
       if (access[0] !== undefined) {
-        // 改行を全て削除
-        access = access[0].innerText.replace(/\r?\n/g,'');
+        // 文字列を整形
+        access = replaceString(access[0].innerText);
       } else {
         access = '';
       }
@@ -92,8 +102,8 @@ let fileData = '';
       var typeTrain3 = '';
       var typeTrain = item[i].getElementsByClassName("type_train");
       if (typeTrain[0] !== undefined) {
-        // 改行を全て削除
-        typeTrain = typeTrain[0].innerText.replace(/\r?\n/g,'');
+        // 文字列の整形
+        typeTrain = replaceString(typeTrain[0].innerText);
         // 不要な文字列は削除
         typeTrain = typeTrain.replace(/最寄り駅： /g,'');
         typeTrain = typeTrain.replace(/ $/g,'');
@@ -118,10 +128,8 @@ let fileData = '';
       // 診療時間
       var time = item[i].getElementsByClassName("s_time");
       if (time[0] !== undefined) {
-        // 改行を全て削除
-        time = time[0].innerText.replace(/\r?\n/g,'');
-        // タブを全てスペースに置換
-        time = time.replace(/\t/g,' ');
+        // 文字列の整形
+        time = replaceString(time[0].innerText);
       } else {
         time = '';
       }
@@ -182,6 +190,7 @@ let fileData = '';
     }
   });
 })()
+
 
 // 非同期でファイルを読み込みPromiseを返す関数を定義
 const readPostalCodeFile = () => {

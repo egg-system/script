@@ -3,7 +3,7 @@
 SECONDS=0
 
 #for number in `seq 860`
-for number in `seq 218 860`
+for number in `seq 857`
 do
   echo "-------"
   node scraping.js $number
